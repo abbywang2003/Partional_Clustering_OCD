@@ -269,7 +269,7 @@ specificity = 0.908
 - Clear elbow at k=4
 - SSE stabilizes after this point
 - Suggests 4 distinct patient groups</em>
-</div>
+
 
 ## 📈 Statistical Summary
 
