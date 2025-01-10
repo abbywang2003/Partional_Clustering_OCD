@@ -6,7 +6,6 @@
 
 ## 🛠️ Implementation Overview
 
-
 ### Pipeline Architecture
 
 ```mermaid
@@ -146,7 +145,7 @@ def plot_distribution(data, column, title):
 
 <table>
 <tr>
-<td width="50%" align="center">
+<td width="50%">
 <h4>Classification Metrics</h4>
 
 ```python
@@ -156,7 +155,7 @@ specificity = 0.908
 ```
 
 </td>
-<td width="50%" align="center">
+<td width="50%">
 <h4>Confusion Matrix</h4>
 
 ```python
@@ -212,11 +211,10 @@ specificity = 0.908
 </td>
 </tr>
 </table>
+
 ## 📊 Data Visualization Results
 
 ### 1. Exploratory Data Analysis (EDA)
-
-<div align="center">
 
 #### Distribution of Numerical Features
 
@@ -225,50 +223,63 @@ specificity = 0.908
 <td width="50%">
 <img src="images/age_distribution.png" alt="Age Distribution" width="400"/>
 <br>
-<em>Distribution of Patient Ages
+<em>Distribution of Patient Ages</em>
+<br>
 - Bell-shaped distribution
+<br>
 - Most patients between 25-55 years
-- Mean age around 40</em>
+<br>
+- Mean age around 40
 </td>
 <td width="50%">
 <img src="images/symptoms_duration.png" alt="Symptoms Duration" width="400"/>
 <br>
-<em>Distribution of Symptoms Duration (months)
+<em>Distribution of Symptoms Duration (months)</em>
+<br>
 - Right-skewed distribution
+<br>
 - Majority under 60 months
-- Some chronic cases >100 months</em>
+<br>
+- Some chronic cases >100 months
 </td>
 </tr>
 <tr>
 <td width="50%">
 <img src="images/obsession_score.png" alt="Obsession Scores" width="400"/>
 <br>
-<em>Y-BOCS Obsession Scores
+<em>Y-BOCS Obsession Scores</em>
+<br>
 - Normal distribution
+<br>
 - Scores typically 15-30
-- Peak around score 23</em>
+<br>
+- Peak around score 23
 </td>
 <td width="50%">
 <img src="images/compulsion_score.png" alt="Compulsion Scores" width="400"/>
 <br>
-<em>Y-BOCS Compulsion Scores
+<em>Y-BOCS Compulsion Scores</em>
+<br>
 - Similar to obsession pattern
+<br>
 - Slightly lower average
-- Most scores between 15-25</em>
+<br>
+- Most scores between 15-25
 </td>
 </tr>
 </table>
 
 ### 2. K-means Clustering Analysis
 
-<div align="center">
 <img src="images/elbow_curve.png" alt="Elbow Method" width="800"/>
 <br>
-<em>Elbow Method for Optimal k
+<em>Elbow Method for Optimal k</em>
+<br>
 - Clear elbow at k=4
+<br>
 - SSE stabilizes after this point
-- Suggests 4 distinct patient groups</em>
-
+<br>
+- Suggests 4 distinct patient groups
 
 ## 📈 Statistical Summary
 
@@ -291,22 +302,30 @@ specificity = 0.908
 <td>Key Features</td>
 <td>
 - Peak ~40 years
+<br>
 - Symmetric
+<br>
 - Wide range
 </td>
 <td>
 - Long tail
+<br>
 - Most <5 years
+<br>
 - Some chronic
 </td>
 <td>
 - Centered ~23
+<br>
 - Clear peaks
+<br>
 - Full range
 </td>
 <td>
 - Similar to obsession
+<br>
 - Slightly lower
+<br>
 - Consistent spread
 </td>
 </tr>
@@ -334,27 +353,6 @@ specificity = 0.908
 - Sharp decrease in SSE up to k=4
 - Minimal improvement beyond 4 clusters
 
-## 📊 Visualization Code Examples
-
-```python
-# Distribution Plot Function
-def plot_distribution(data, column, title):
-    plt.figure(figsize=(10, 6))
-    sns.histplot(data=data, x=column, kde=True)
-    plt.title(title)
-    plt.grid(alpha=0.4)
-    plt.show()
-
-# Elbow Curve Plot
-plt.figure(figsize=(15, 8))
-plt.plot(k_range, sse, 'bo-')
-plt.xlabel('Number of Clusters (k)')
-plt.ylabel('SSE')
-plt.title('Elbow Method for Optimal k')
-plt.grid(True)
-plt.show()
-```
-
 ## 🚀 Usage
 
 ```bash
@@ -367,17 +365,6 @@ pip install -r requirements.txt
 # Run analysis
 python main.py
 ```
-
-## 📈 Results Output
-
-```python
-# Final metrics
-print(f'Final Model Accuracy: {accuracy:.3f}')
-print(f'Sensitivity: {sensitivity:.3f}')
-print(f'Specificity: {specificity:.3f}')
-```
-
-</div>
 
 ## 📝 Notes
 
