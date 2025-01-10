@@ -6,7 +6,6 @@
 
 ## 🛠️ Implementation Overview
 
-<div align="center">
 
 ### Pipeline Architecture
 
