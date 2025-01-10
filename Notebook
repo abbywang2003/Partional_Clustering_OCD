@@ -1,0 +1,197 @@
+# Combined OCD Patient Analysis
+# This notebook combines classification modeling and clustering analysis
+
+# Import required libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.cluster import KMeans
+from sklearn.linear_model import LogisticRegression, Perceptron
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from xgboost import XGBClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+
+%matplotlib inline
+
+# 1. Data Loading and Initial Exploration
+# -------------------------------------
+dataset = pd.read_csv('/kaggle/input/ocd-patient-dataset-demographics-and-clinical-data/ocd_patient_dataset.csv')
+print('Dataset dimension:', dataset.shape)
+print('Attributes in the dataset:', dataset.columns.values)
+dataset.info()
+
+# 2. Data Preprocessing
+# -------------------
+# Remove Patient ID and rename columns
+dataset.drop(columns=['Patient ID'], axis=1, inplace=True)
+dataset.rename({
+    'Marital Status': 'MaritalStatus',
+    'Education Level': 'EducationLevel',
+    'OCD Diagnosis Date': 'DiagnosisDate',
+    'Duration of Symptoms (months)': 'SymptomsDuration',
+    'Previous Diagnoses': 'PreviousDiagnoses',
+    'Family History of OCD': 'FamilyHistory',
+    'Obsession Type': 'ObsessionType',
+    'Compulsion Type': 'CompulsionType',
+    'Y-BOCS Score (Obsessions)': 'ObsessionScore',
+    'Y-BOCS Score (Compulsions)': 'CompulsionScore',
+    'Depression Diagnosis': 'DepressionDiagnosis',
+    'Anxiety Diagnosis': 'AnxietyDiagnosis'
+}, axis=1, inplace=True)
+
+# Convert diagnosis date to datetime
+dataset['DiagnosisDate'] = pd.to_datetime(dataset['DiagnosisDate'], format='%Y-%m-%d')
+
+# 3. Exploratory Data Analysis (EDA)
+# --------------------------------
+def plot_distribution(data, column, title):
+    plt.figure(figsize=(10, 6))
+    sns.histplot(data=data, x=column, kde=True)
+    plt.title(title)
+    plt.grid(alpha=0.4)
+    plt.show()
+
+# Plot distributions for numerical columns
+numerical_cols = ['Age', 'SymptomsDuration', 'ObsessionScore', 'CompulsionScore']
+for col in numerical_cols:
+    plot_distribution(dataset, col, f'Distribution of {col}')
+
+# 4. Clustering Analysis
+# --------------------
+# Prepare data for clustering
+categorical_features = ['Gender', 'Ethnicity', 'MaritalStatus', 'EducationLevel',
+                       'PreviousDiagnoses', 'FamilyHistory', 'ObsessionType',
+                       'CompulsionType', 'DepressionDiagnosis', 'AnxietyDiagnosis', 'Medications']
+numeric_features = ['Age', 'SymptomsDuration', 'ObsessionScore', 'CompulsionScore']
+
+# Create preprocessing pipeline
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('onehot', OneHotEncoder())
+])
+
+numeric_transformer = Pipeline(steps=[
+    ('imputer', KNNImputer(n_neighbors=2))
+])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('cat', categorical_transformer, categorical_features),
+        ('num', numeric_transformer, numeric_features)
+    ], remainder='passthrough')
+
+pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('scaler', MinMaxScaler())])
+
+# Transform data
+df_cluster = dataset.drop(columns=['DiagnosisDate'], axis=1)
+data_processed = pipeline.fit_transform(df_cluster)
+
+# Perform elbow method for optimal k
+sse = []
+k_range = range(1, 21)
+for k in k_range:
+    km = KMeans(n_clusters=k, n_init=15, random_state=122)
+    km.fit(data_processed)
+    sse.append(km.inertia_)
+
+# Plot elbow curve
+plt.figure(figsize=(15, 8))
+plt.plot(k_range, sse, 'bo-')
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('SSE')
+plt.title('Elbow Method for Optimal k')
+plt.grid(True)
+plt.show()
+
+# Apply K-means with optimal k=4
+kmeans = KMeans(n_clusters=4, n_init=15, random_state=122)
+cluster_labels = kmeans.fit_predict(data_processed)
+dataset['Cluster'] = cluster_labels
+
+# 5. Classification Analysis
+# ------------------------
+# Prepare data for classification
+# Map categorical variables
+mapping_dict = {
+    'Ethnicity': {'Caucasian':0, 'African':1, 'Asian':2, 'Hispanic':3},
+    'Gender': {'Male':0, 'Female':1},
+    'MaritalStatus': {'Single':0, 'Divorced':1, 'Married':2},
+    'PreviousDiagnoses': {'None':0, 'GAD':1, 'MDD':2, 'Panic Disorder':3, 'PTSD':4},
+    'FamilyHistory': {'Yes':1, 'No':0},
+    'ObsessionType': {'Contamination':0, 'Harm-related':1, 'Hoarding':2, 'Religious':3, 'Symmetry':4},
+    'DepressionDiagnosis': {'Yes':1, 'No':0},
+    'AnxietyDiagnosis': {'Yes':1, 'No':0}
+}
+
+for col, mapping in mapping_dict.items():
+    dataset[col] = dataset[col].map(mapping)
+
+# Prepare features and target
+X = dataset[['Gender', 'Age', 'Ethnicity', 'MaritalStatus', 'EducationLevel', 
+            'SymptomsDuration', 'ObsessionType', 'ObsessionScore', 'CompulsionScore']]
+y = dataset['DepressionDiagnosis']
+
+# Split and scale data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Train and evaluate multiple models
+models = [
+    ('LRA', LogisticRegression()),
+    ('LDA', LinearDiscriminantAnalysis()),
+    ('DTC', DecisionTreeClassifier()),
+    ('KNB', KNeighborsClassifier()),
+    ('GNB', GaussianNB()),
+    ('PCT', Perceptron()),
+    ('SVM', SVC(gamma='auto')),
+    ('XGB', XGBClassifier())
+]
+
+# Evaluate models using cross-validation
+results = []
+names = []
+for name, model in models:
+    kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_results = cross_val_score(model, X_train, y_train, cv=kfold, scoring='accuracy')
+    results.append(cv_results)
+    names.append(name)
+    print(f'{name}: {cv_results.mean():.3f} (+/- {cv_results.std()*2:.3f})')
+
+# Plot model comparison
+plt.figure(figsize=(12, 6))
+plt.boxplot(results, labels=names)
+plt.title('Model Comparison')
+plt.ylabel('Accuracy')
+plt.show()
+
+# Train final XGBoost model
+xgb = XGBClassifier()
+xgb.fit(X_train, y_train)
+y_pred = xgb.predict(X_test)
+
+# Calculate and print metrics
+accuracy = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+print(f'Final Model Accuracy: {accuracy:.3f}')
+print('\nConfusion Matrix:')
+print(cm)
+
+# Calculate additional metrics
+tn, fp, fn, tp = cm.ravel()
+sensitivity = tp / (tp + fn)
+specificity = tn / (tn + fp)
+print(f'\nSensitivity: {sensitivity:.3f}')
+print(f'Specificity: {specificity:.3f}')
