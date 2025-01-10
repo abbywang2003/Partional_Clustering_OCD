@@ -224,7 +224,7 @@ specificity = 0.908
 <table>
 <tr>
 <td width="50%">
-< img src="images/age_distribution.png" alt="Age Distribution" width="400"/>
+<img src="images/age_distribution.png" alt="Age Distribution" width="400"/>
 <br>
 <em>Distribution of Patient Ages
 - Bell-shaped distribution
@@ -232,7 +232,7 @@ specificity = 0.908
 - Mean age around 40</em>
 </td>
 <td width="50%">
-< img src="images/symptoms_duration.png" alt="Symptoms Duration" width="400"/>
+<img src="images/symptoms_duration.png" alt="Symptoms Duration" width="400"/>
 <br>
 <em>Distribution of Symptoms Duration (months)
 - Right-skewed distribution
@@ -242,7 +242,7 @@ specificity = 0.908
 </tr>
 <tr>
 <td width="50%">
-< img src="images/obsession_score.png" alt="Obsession Scores" width="400"/>
+<img src="images/obsession_score.png" alt="Obsession Scores" width="400"/>
 <br>
 <em>Y-BOCS Obsession Scores
 - Normal distribution
@@ -250,7 +250,7 @@ specificity = 0.908
 - Peak around score 23</em>
 </td>
 <td width="50%">
-< img src="images/compulsion_score.png" alt="Compulsion Scores" width="400"/>
+<img src="images/compulsion_score.png" alt="Compulsion Scores" width="400"/>
 <br>
 <em>Y-BOCS Compulsion Scores
 - Similar to obsession pattern
@@ -263,7 +263,7 @@ specificity = 0.908
 ### 2. K-means Clustering Analysis
 
 <div align="center">
-< img src="images/elbow_curve.png" alt="Elbow Method" width="800"/>
+<img src="images/elbow_curve.png" alt="Elbow Method" width="800"/>
 <br>
 <em>Elbow Method for Optimal k
 - Clear elbow at k=4
