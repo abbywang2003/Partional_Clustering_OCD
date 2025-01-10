@@ -357,7 +357,7 @@ plt.show()
 ```
 
 ## 🚀 Usage
-<div align="center">
+
 ```bash
 # Clone repository
 git clone https://github.com/yourusername/ocd-analysis.git
